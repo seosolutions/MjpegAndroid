@@ -31,7 +31,7 @@ import com.streaming.MjpegView.MjpegView;
 public class Streaming extends Activity {
  
         //private MjpegView mv;
-		private int zoomValue;
+		private int zoomValue = 0;
        
  
         public void onCreate(Bundle icicle) {
@@ -43,7 +43,7 @@ public class Streaming extends Activity {
  
         //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
  
-          //                   WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //                   WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_streaming);
         TextView txtIsConnected = (TextView)findViewById(R.id.txtIsConnected);
         
@@ -147,10 +147,7 @@ public class Streaming extends Activity {
                 else
                     return false;   
         }
-        
-        
-        
-        
+                
         public void GetRequest(String url)
         {
         	class HttpGetAsyncTask extends AsyncTask<String, Void, Void>{
@@ -220,13 +217,10 @@ public class Streaming extends Activity {
         
 
  
-       // public void onPause() {
- 
-         //       super.onPause();
- 
-           //     mv.stopPlayback();
- 
- //       }
+        // public void onPause() {
+        //       super.onPause();
+        //     mv.stopPlayback();
+        //       }
         
         public boolean onCreateOptionsMenu(Menu menu) {
             // Inflate the menu; this adds items to the action bar if it is present.
