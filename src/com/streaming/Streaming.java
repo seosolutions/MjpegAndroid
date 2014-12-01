@@ -123,7 +123,8 @@ public class Streaming extends Activity {
                 	TextView txt = (TextView)findViewById(R.id.TextView);
                 	txt.setText("Zoom out");
                 	zoomValue--;
-                	GetRequest("http://192.168.0.90/axis-cgi/com/ptz.cgi?camera=1&rzoom=" + zoomValue);
+                	//GetRequest("http://192.168.0.90/axis-cgi/com/ptz.cgi?camera=1&rzoom=" + zoomValue);
+                	GetRequest("http://192.168.0.90/?lightoff");
        
                 }
             });
@@ -133,7 +134,8 @@ public class Streaming extends Activity {
                 	TextView txt = (TextView)findViewById(R.id.TextView);
                 	txt.setText("Zoom in");
                 	zoomValue++;
-                	GetRequest("http://192.168.0.90/axis-cgi/com/ptz.cgi?camera=1&rzoom=" + zoomValue);
+                	//GetRequest("http://192.168.0.90/axis-cgi/com/ptz.cgi?camera=1&rzoom=" + zoomValue);
+                	GetRequest("http://192.168.0.90/?lighton");
                 }
             });
             
