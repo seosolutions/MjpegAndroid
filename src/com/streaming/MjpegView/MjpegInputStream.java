@@ -1,36 +1,16 @@
  
 package com.streaming.MjpegView;
  
- 
- 
 import java.io.BufferedInputStream;
- 
 import java.io.ByteArrayInputStream;
- 
 import java.io.DataInputStream;
- 
 import java.io.IOException;
- 
-import java.io.InputStream;
- 
-import java.net.URI;
- 
+import java.io.InputStream; 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Properties;
- 
- 
- 
-import org.apache.http.HttpResponse;
- 
-import org.apache.http.client.ClientProtocolException;
- 
-import org.apache.http.client.methods.HttpGet;
- 
-import org.apache.http.impl.client.DefaultHttpClient;
- 
- 
- 
+
 import android.graphics.Bitmap;
- 
 import android.graphics.BitmapFactory;
  
  
@@ -38,49 +18,35 @@ import android.graphics.BitmapFactory;
 public class MjpegInputStream extends DataInputStream {
  
     private final byte[] SOI_MARKER = { (byte) 0xFF, (byte) 0xD8 };
- 
     private final byte[] EOF_MARKER = { (byte) 0xFF, (byte) 0xD9 };
- 
     private final String CONTENT_LENGTH = "Content-Length";
- 
     private final static int HEADER_MAX_LENGTH = 100;
- 
-    private final static int FRAME_MAX_LENGTH = 40000 + HEADER_MAX_LENGTH;
- 
+    private final static int FRAME_MAX_LENGTH = 200000; //+ HEADER_MAX_LENGTH;
     private int mContentLength = -1;
+    byte[] header =null;
+    byte[] frameData =null;
+    int headerLen = -1;
+    int headerLenPrev = -1;
+    
+    public native void freeCameraMemory();
+    
+    public static MjpegInputStream read(String surl) {
  
-       
- 
-    public static MjpegInputStream read(String url) {
- 
-        HttpResponse res;
- 
-        DefaultHttpClient httpclient = new DefaultHttpClient();        
- 
-        try {
- 
-            res = httpclient.execute(new HttpGet(URI.create(url)));
- 
-            return new MjpegInputStream(res.getEntity().getContent());                         
- 
-        } catch (ClientProtocolException e) {
- 
-        } catch (IOException e) {}
- 
+    	try {
+    		URL url = new URL(surl);
+    		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+    		return new MjpegInputStream(urlConnection.getInputStream());
+    	}catch(Exception e){}
+    	
         return null;
- 
     }
- 
-       
- 
+   
     public MjpegInputStream(InputStream in) {
  
         super(new BufferedInputStream(in, FRAME_MAX_LENGTH));
  
     }
- 
-       
- 
+        
     private int getEndOfSeqeunce(DataInputStream in, byte[] sequence)
  
         throws IOException
@@ -108,9 +74,7 @@ public class MjpegInputStream extends DataInputStream {
         return -1;
  
     }
- 
-       
- 
+      
     private int getStartOfSequence(DataInputStream in, byte[] sequence)
  
         throws IOException
@@ -122,8 +86,6 @@ public class MjpegInputStream extends DataInputStream {
         return (end < 0) ? (-1) : (end - sequence.length);
  
     }
- 
- 
  
     private int parseContentLength(byte[] headerBytes)
  
@@ -141,20 +103,14 @@ public class MjpegInputStream extends DataInputStream {
  
     }  
  
- 
- 
     public Bitmap readMjpegFrame() throws IOException {
  
         mark(FRAME_MAX_LENGTH);
- 
-        int headerLen = getStartOfSequence(this, SOI_MARKER);
- 
+        headerLen = getStartOfSequence(this, SOI_MARKER);
         reset();
- 
-        byte[] header = new byte[headerLen];
- 
+        header = new byte[headerLen];
+        headerLenPrev = headerLen;
         readFully(header);
- 
         try {
  
             mContentLength = parseContentLength(header);
@@ -166,15 +122,10 @@ public class MjpegInputStream extends DataInputStream {
         }
  
         reset();
- 
-        byte[] frameData = new byte[mContentLength];
- 
+        frameData = new byte[mContentLength];
         skipBytes(headerLen);
- 
         readFully(frameData);
- 
         return BitmapFactory.decodeStream(new ByteArrayInputStream(frameData));
- 
     }
  
 }
